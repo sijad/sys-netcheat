@@ -387,113 +387,6 @@ int argmain(int argc, char **argv)
         return 0;
     }
 
-    if (!strcmp(argv[0], "csearch"))
-    {
-        if (argc != 2 && argc != 3)
-            goto help;
-
-        if (search == VAL_NONE)
-        {
-            printf("You need to start a search first!");
-            return 0;
-        }
-
-        u8 u8NewLowVal = 0;
-        u16 u16NewLowVal = 0;
-        u32 u32NewLowVal = 0;
-        u64 u64NewLowVal = 0;
-
-        u8 u8NewUppVal = 0;
-        u16 u16NewUppVal = 0;
-        u32 u32NewUppVal = 0;
-        u64 u64NewUppVal = 0;
-
-        if (search == VAL_U8)
-        {
-            u8NewLowVal = strtoul(argv[1], NULL, 10);
-        }
-        else if (search == VAL_U16)
-        {
-            u16NewLowVal = strtoul(argv[1], NULL, 10);
-        }
-        else if (search == VAL_U32)
-        {
-            u32NewLowVal = strtoul(argv[1], NULL, 10);
-        }
-        else if (search == VAL_U64)
-        {
-            u64NewLowVal = strtoull(argv[1], NULL, 10);
-        }
-
-        if (argc == 3)
-        {
-            if (search == VAL_U8)
-            {
-                u8NewUppVal = strtoul(argv[2], NULL, 10);
-            }
-            else if (search == VAL_U16)
-            {
-                u16NewUppVal = strtoul(argv[2], NULL, 10);
-            }
-            else if (search == VAL_U32)
-            {
-                u32NewUppVal = strtoul(argv[2], NULL, 10);
-            }
-            else if (search == VAL_U64)
-            {
-                u64NewUppVal = strtoull(argv[2], NULL, 10);
-            }
-        }
-
-        u64 newSearchSize = 0;
-        for (int i = 0; i < searchSize; i++)
-        {
-            if (search == VAL_U8)
-            {
-                u8 val;
-                svcReadDebugProcessMemory(&val, debughandle, searchArr[i], sizeof(u8));
-                if (val == u8NewLowVal || (argc == 3 && (val >= u8NewLowVal && val <= u8NewUppVal)))
-                {
-                    printf("Got a hit at %lx!\r\n", searchArr[i]);
-                    searchArr[newSearchSize++] = searchArr[i];
-                }
-            }
-            if (search == VAL_U16)
-            {
-                u16 val;
-                svcReadDebugProcessMemory(&val, debughandle, searchArr[i], sizeof(u16));
-                if (val == u16NewLowVal || (argc == 3 && (val >= u16NewLowVal && val <= u16NewUppVal)))
-                {
-                    printf("Got a hit at %lx!\r\n", searchArr[i]);
-                    searchArr[newSearchSize++] = searchArr[i];
-                }
-            }
-            if (search == VAL_U32)
-            {
-                u32 val;
-                svcReadDebugProcessMemory(&val, debughandle, searchArr[i], sizeof(u32));
-                if (val == u32NewLowVal || (argc == 3 && (val >= u32NewLowVal && val <= u32NewUppVal)))
-                {
-                    printf("Got a hit at %lx!\r\n", searchArr[i]);
-                    searchArr[newSearchSize++] = searchArr[i];
-                }
-            }
-            if (search == VAL_U64)
-            {
-                u64 val;
-                svcReadDebugProcessMemory(&val, debughandle, searchArr[i], sizeof(u64));
-                if (val == u64NewLowVal || (argc == 3 && (val >= u64NewLowVal && val <= u64NewUppVal)))
-                {
-                    printf("Got a hit at %lx!\r\n", searchArr[i]);
-                    searchArr[newSearchSize++] = searchArr[i];
-                }
-            }
-        }
-
-        searchSize = newSearchSize;
-        return 0;
-    }
-
     if (!strcmp(argv[0], "poke"))
     {
         if (argc != 4)
@@ -576,7 +469,6 @@ help:
     printf("Commands:\r\n"
            "    help                                 | Shows this text\r\n"
            "    ssearch u8/u16/u32/u64 value         | Starts a search with 'value' as the starting-value\r\n"
-           "    csearch value                        | Searches the hits of the last search for the new value\r\n"
            "    poke address u8/u16/u32/u64 value    | Sets the memory at address to value\r\n"
            "    afreeze address u8/u16/u32/u64 value | Freezes the memory at address to value\r\n"
            "    lfreeze                              | Lists all frozen values\r\n"
