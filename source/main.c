@@ -92,11 +92,6 @@ enum
 };
 char *valtypes[] = {"none", "u8", "u16", "u32", "u64"};
 
-int search = VAL_NONE;
-#define SEARCH_ARR_SIZE 500000
-u64 searchArr[SEARCH_ARR_SIZE];
-int searchSize;
-
 int sock = -1;
 
 static Mutex actionLock;
@@ -237,6 +232,8 @@ int argmain(int argc, char **argv)
         u32 u32UppQuery = 0;
         u64 u64UppQuery = 0;
 
+        int search = VAL_NONE;
+
         if (!strcmp(argv[1], "u8"))
         {
             search = VAL_U8;
@@ -279,8 +276,6 @@ int argmain(int argc, char **argv)
         MemoryInfo meminfo;
         memset(&meminfo, 0, sizeof(MemoryInfo));
 
-        searchSize = 0;
-
         u64 lastaddr = 0;
         void *outbuf = malloc(0x40000);
         do
@@ -307,15 +302,9 @@ int argmain(int argc, char **argv)
                         u8 *u8buf = (u8 *)outbuf;
                         for (u64 i = 0; i < chunksize / sizeof(u8); i++)
                         {
-                            if (searchSize >= SEARCH_ARR_SIZE)
-                            {
-                                break;
-                            }
-
                             if (u8buf[i] == u8LowQuery || (argc == 4 && (u8buf[i] >= u8LowQuery && u8buf[i] <= u8UppQuery)))
                             {
-                                printf("Got a hit at %lx!\r\n", curaddr + i * sizeof(u8));
-                                searchArr[searchSize++] = curaddr + i * sizeof(u8);
+                                printf("av %lx %u \r\n", curaddr + i * sizeof(u8), u8buf[i]);
                             }
                         }
                     }
@@ -325,15 +314,9 @@ int argmain(int argc, char **argv)
                         u16 *u16buf = (u16 *)outbuf;
                         for (u64 i = 0; i < chunksize / sizeof(u16); i++)
                         {
-                            if (searchSize >= SEARCH_ARR_SIZE)
-                            {
-                                break;
-                            }
-
                             if (u16buf[i] == u16LowQuery || (argc == 4 && (u16buf[i] >= u16LowQuery && u16buf[i] <= u16UppQuery)))
                             {
-                                printf("Got a hit at %lx!\r\n", curaddr + i * sizeof(u16));
-                                searchArr[searchSize++] = curaddr + i * sizeof(u16);
+                                printf("av %lx %u \r\n", curaddr + i * sizeof(u16), u16buf[i]);
                             }
                         }
                     }
@@ -343,15 +326,9 @@ int argmain(int argc, char **argv)
                         u32 *u32buf = (u32 *)outbuf;
                         for (u64 i = 0; i < chunksize / sizeof(u32); i++)
                         {
-                            if (searchSize >= SEARCH_ARR_SIZE)
-                            {
-                                break;
-                            }
-
                             if (u32buf[i] == u32LowQuery || (argc == 4 && (u32buf[i] >= u32LowQuery && u32buf[i] <= u32UppQuery)))
                             {
-                                printf("Got a hit at %lx!\r\n", curaddr + i * sizeof(u32));
-                                searchArr[searchSize++] = curaddr + i * sizeof(u32);
+                                printf("av %lx %u \r\n", curaddr + i * sizeof(u32), u32buf[i]);
                             }
                         }
                     }
@@ -361,15 +338,9 @@ int argmain(int argc, char **argv)
                         u64 *u64buf = (u64 *)outbuf;
                         for (u64 i = 0; i < chunksize / sizeof(u64); i++)
                         {
-                            if (searchSize >= SEARCH_ARR_SIZE)
-                            {
-                                break;
-                            }
-
                             if (u64buf[i] == u64LowQuery || (argc == 4 && (u64buf[i] >= u64LowQuery && u64buf[i] <= u64UppQuery)))
                             {
-                                printf("Got a hit at %lx!\r\n", curaddr + i * sizeof(u64));
-                                searchArr[searchSize++] = curaddr + i * sizeof(u32);
+                                printf("av %lx %lu \r\n", curaddr + i * sizeof(u64), u64buf[i]);
                             }
                         }
                     }
@@ -377,11 +348,8 @@ int argmain(int argc, char **argv)
                     curaddr += chunksize;
                 }
             }
-        } while (lastaddr < meminfo.addr + meminfo.size && searchSize < SEARCH_ARR_SIZE);
-        if (searchSize >= SEARCH_ARR_SIZE)
-        {
-            printf("There might be more after this, try getting the variable to a number that's less 'common'\r\n");
-        }
+        } while (lastaddr < meminfo.addr + meminfo.size);
+
         free(outbuf);
 
         return 0;
