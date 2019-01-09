@@ -355,6 +355,48 @@ int argmain(int argc, char **argv)
         return 0;
     }
 
+    if (!strcmp(argv[0], "peek"))
+    {
+        if (argc <= 2)
+            goto help;
+
+        for (int i = 2; i < argc; i++)
+        {
+            u64 addr = strtoull(argv[i], NULL, 16);
+
+            if (!strcmp(argv[1], "u8"))
+            {
+                u8 val;
+                svcReadDebugProcessMemory(&val, debughandle, addr, sizeof(u8));
+                printf("av %lx %u \r\n", addr, val);
+            }
+            else if (!strcmp(argv[1], "u16"))
+            {
+                u16 val;
+                svcReadDebugProcessMemory(&val, debughandle, addr, sizeof(u16));
+                printf("av %lx %u \r\n", addr, val);
+            }
+            else if (!strcmp(argv[1], "u32"))
+            {
+                u32 val;
+                svcReadDebugProcessMemory(&val, debughandle, addr, sizeof(u32));
+                printf("av %lx %u \r\n", addr, val);
+            }
+            else if (!strcmp(argv[1], "u64"))
+            {
+                u64 val;
+                svcReadDebugProcessMemory(&val, debughandle, addr, sizeof(u64));
+                printf("av %lx %lu \r\n", addr, val);
+            }
+            else {
+                goto help;
+                break;
+            }
+        }
+
+        return 0;
+    }
+
     if (!strcmp(argv[0], "poke"))
     {
         if (argc != 4)
@@ -429,18 +471,19 @@ int argmain(int argc, char **argv)
         }
         else
             goto help;
-        
+
         return 0;
     }
 
 help:
     printf("Commands:\r\n"
-           "    help                                 | Shows this text\r\n"
-           "    ssearch u8/u16/u32/u64 value         | Starts a search with 'value' as the starting-value\r\n"
-           "    poke address u8/u16/u32/u64 value    | Sets the memory at address to value\r\n"
-           "    afreeze address u8/u16/u32/u64 value | Freezes the memory at address to value\r\n"
-           "    lfreeze                              | Lists all frozen values\r\n"
-           "    dfreeze index                        | Unfreezes the memory at index\r\n");
+           "    help                                     | Shows this text\r\n"
+           "    ssearch u8/u16/u32/u64 value             | Starts a search with 'value' as the starting-value\r\n"
+           "    poke address u8/u16/u32/u64 value        | Sets the memory at address to value\r\n"
+           "    peek u8/u16/u32/u64 address [...address] | Sets the memory at address to value\r\n"
+           "    afreeze address u8/u16/u32/u64 value     | Freezes the memory at address to value\r\n"
+           "    lfreeze                                  | Lists all frozen values\r\n"
+           "    dfreeze index                            | Unfreezes the memory at index\r\n");
     return 0;
 }
 
